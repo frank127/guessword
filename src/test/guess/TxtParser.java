@@ -16,9 +16,6 @@ import java.util.Map.Entry;
 
 public class TxtParser
 {
-    private static final String DEFAULT_FILE_NAME = "Words.txt";
-    
-    private String fileName;
     private int length;
     private String validateString;
     
@@ -59,28 +56,31 @@ public class TxtParser
         Iterator<Entry<String, Integer>> it = valid.entrySet().iterator();
 
         List<String> validedwords = new ArrayList<String>();
+        
+        URL fileUrl = this.getClass().getClassLoader().getResource("");
+        
         while (it.hasNext())
         {
             Entry<String, Integer> entry = it.next();
 
             String location = this.getClass().getPackage().toString().replaceAll("package ", "").replaceAll("\\.", "/");
 
-            String filelocation = location + "/" + entry.getKey() + "_" + length + ".txt";
+            String filelocation = fileUrl.getPath() + location + File.separator + entry.getKey() + "_" + length + ".txt";
 
-            URL fileUrl = this.getClass().getClassLoader().getResource("");
-            
-            File file = new File(fileUrl.getPath().replaceAll("bin", "src") + filelocation);
+            File file = new File(filelocation);
             
             if (!file.exists())
             {
                 continue;
             }
 
-            FileReader fr;
+            FileReader fr = null;
+            BufferedReader br = null;
             try
             {
-                fr = new FileReader(file);
-                BufferedReader br = new BufferedReader(fr);
+            	
+            	fr = new FileReader(file);
+                br = new BufferedReader(fr);
 
                 String s;
 
@@ -108,9 +108,27 @@ public class TxtParser
                 // TODO Auto-generated catch block
                 e.printStackTrace();
             }
+            finally
+            {
+            	try {
+					fr.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            	
+            	try {
+					br.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
         }
-
-        this.setValidateWords(validedwords);
+        
+        TxtFileProcessor.cleanUpFile();
+        
+        this.setValidateWords(validedwords);        
 
     }
     
